@@ -1,16 +1,16 @@
 name: health_triage_assistant
 version: "1.0.0"
-description: "A real-world healthcare triage environment for AI agent training."
+description: "A healthcare triage environment for AI training."
 tasks:
   - id: "prioritize_urgent_cases"
     difficulty: "easy"
-    description: "The agent must identify if the patient record requires urgent care."
+    description: "Identify if the patient record requires urgent care."
     grader: true
   - id: "extract_patient_vitals"
     difficulty: "medium"
-    description: "The agent must extract specific numerical vitals (Temp/BP) from raw text."
+    description: "Extract numerical vitals from raw text."
     grader: true
   - id: "suggest_specialist_referral"
     difficulty: "hard"
-    description: "The agent must recommend the correct department based on symptoms."
+    description: "Recommend the correct department based on symptoms."
     grader: true
