@@ -29,44 +29,36 @@ class HealthTriageEnvironment(Environment):
 
     def step(self, action: HealthAction) -> HealthObservation:
         self._state.step_count += 1
-        raw_reward = 0.05  # Default failure
-        message = f"Incorrect action or value for stage: {self.current_stage}"
+        reward = 0.05  # Use 0.05 instead of 0.0 (Strictly > 0)
+        message = "Incorrect action."
         done = False
 
-        # Task 1: prioritize_urgent_cases
         if action.action_type == "prioritize_urgent_cases":
             if "urgent" in action.value.lower():
-                raw_reward = 0.95
+                reward = 0.95  # Use 0.95 instead of 1.0 (Strictly < 1)
                 self.current_stage = "extraction"
-                message = "Correct. Patient prioritized. Extract vitals."
-            
-        # Task 2: extract_patient_vitals
+                message = "Success."
+
         elif action.action_type == "extract_patient_vitals":
             if "103" in action.value:
-                raw_reward = 0.95
+                reward = 0.95
                 self.current_stage = "referral"
-                message = "Correct. Temp extracted. Suggest a department."
+                message = "Success."
 
-        # Task 3: suggest_specialist_referral 
         elif action.action_type == "suggest_specialist_referral":
             if "cardiology" in action.value.lower():
-                raw_reward = 0.95
-                self.current_stage = "completed"
-                message = "Correct. Referring to Cardiology. Triage complete."
+                reward = 0.95
+                message = "Triage complete."
                 done = True
-
-        # End episode if limit reached
-        if self._state.step_count >= 10:
-            done = True
 
         return HealthObservation(
             patient_record=self.patient_record,
             current_stage=self.current_stage,
             message=message,
-            reward=self.clamp_reward(raw_reward),
+            reward=reward, # This will always be 0.05 or 0.95
             done=done
         )
-
+    
     @property
     def state(self) -> HealthState:
         return self._state
