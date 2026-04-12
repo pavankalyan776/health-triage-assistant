@@ -19,46 +19,50 @@ class HealthTriageEnvironment(Environment):
             patient_record=self.patient_record,
             current_stage=self.current_stage,
             message="New patient admitted. Assign priority.",
-            reward=0.1,  # Safe start
+            reward=0.1,  
             done=False
         )
 
     def clamp_reward(self, value: float) -> float:
-        """Guarantees reward is strictly between 0 and 1 as per Scaler requirements."""
+        """Ensures reward is strictly between 0 and 1."""
         return max(0.05, min(0.95, value))
 
     def step(self, action: HealthAction) -> HealthObservation:
         self._state.step_count += 1
-        reward = 0.05  # Use 0.05 instead of 0.0 (Strictly > 0)
-        message = "Incorrect action."
+        reward = 0.05 
+        message = f"Incorrect action for stage: {self.current_stage}"
         done = False
 
         if action.action_type == "prioritize_urgent_cases":
             if "urgent" in action.value.lower():
-                reward = 0.95  # Use 0.95 instead of 1.0 (Strictly < 1)
+                reward = 0.95
                 self.current_stage = "extraction"
-                message = "Success."
+                message = "Success: Prioritized."
 
         elif action.action_type == "extract_patient_vitals":
             if "103" in action.value:
                 reward = 0.95
                 self.current_stage = "referral"
-                message = "Success."
+                message = "Success: Vitals extracted."
 
         elif action.action_type == "suggest_specialist_referral":
             if "cardiology" in action.value.lower():
                 reward = 0.95
-                message = "Triage complete."
+                self.current_stage = "completed"
+                message = "Success: Referral complete."
                 done = True
+
+        if self._state.step_count >= 10:
+            done = True
 
         return HealthObservation(
             patient_record=self.patient_record,
             current_stage=self.current_stage,
             message=message,
-            reward=reward, # This will always be 0.05 or 0.95
+            reward=self.clamp_reward(reward),
             done=done
         )
-    
+
     @property
     def state(self) -> HealthState:
         return self._state
