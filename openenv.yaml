@@ -1,6 +1,6 @@
 name: health_triage_assistant
 version: "1.0.0"
-description: "A healthcare triage environment for AI training."
+description: "Healthcare triage environment for AI training."
 tasks:
   - id: "prioritize_urgent_cases"
     difficulty: "easy"
@@ -14,3 +14,4 @@ tasks:
     difficulty: "hard"
     description: "Recommend the correct department based on symptoms."
     grader: true
+    
